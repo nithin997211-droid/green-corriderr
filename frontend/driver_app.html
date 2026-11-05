@@ -1,0 +1,2595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0b0f19">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%230f172a'/><circle cx='50' cy='30' fill='%2310b981'/></svg>">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: ws: wss: https://fonts.googleapis.com https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' 'unsafe-eval'; connect-src 'self' ws: wss: http: https:;">
+<title>Emergency Driver Console — Mysuru EVP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-base: #000000;
+    --surface-1: #0b0f19;
+    --surface-2: #111827;
+    --surface-hover: #1f2937;
+    --border-subtle: #1f2937;
+    --border-focus: #0284c7;
+    --text-primary: #f9fafb;
+    --text-secondary: #9ca3af;
+    --text-muted: #6b7280;
+    --glosa-green: #00e676;
+    --emerald: #00e676;
+    --emerald-dim: rgba(0, 230, 118, 0.12);
+    --emerald-border: rgba(0, 230, 118, 0.35);
+    --crimson: #dc2626;
+    --crimson-dim: rgba(220, 38, 38, 0.15);
+    --crimson-border: rgba(220, 38, 38, 0.4);
+    --amber: #f59e0b;
+    --amber-dim: rgba(245, 158, 11, 0.14);
+    --sky: #0284c7;
+    --mono: 'IBM Plex Mono', SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    --sans: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    background: var(--bg-base);
+    color: var(--text-primary);
+    font-family: var(--sans);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    overflow-x: hidden;
+  
+    background-color: #000000;
+  }
+
+  /* Executive Mobile Container (Automotive CAD / CarPlay format) */
+  .app-shell {
+    width: 100%;
+    max-width: 480px;
+    min-height: 100vh;
+    background: var(--bg-base);
+    display: flex;
+    flex-direction: column;
+    border-left: 1px solid var(--border-subtle);
+    border-right: 1px solid var(--border-subtle);
+    position: relative;
+    padding-bottom: env(safe-area-inset-bottom, 20px);
+  }
+
+  /* -------------------------------------------------------------------------
+     TOP NAVIGATION BAR
+     ------------------------------------------------------------------------- */
+  .app-header {
+    background: var(--surface-1);
+    border-bottom: 1px solid var(--border-subtle);
+    padding: 12px 16px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .agency-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .agency-emblem {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--surface-2);
+    border: 1px solid var(--border-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+  }
+
+  .agency-text {
+    min-width: 0;
+  }
+
+  .agency-text h1 {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .agency-text p {
+    font-size: 9.5px;
+    color: var(--text-muted);
+    font-family: var(--mono);
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .conn-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 20px;
+    background: var(--emerald-dim);
+    border: 1px solid var(--emerald-border);
+    color: var(--emerald);
+    white-space: nowrap;
+  }
+
+  .pulse-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--emerald);
+    animation: dotPulse 1.8s infinite ease-in-out;
+  }
+
+  @keyframes dotPulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.3; transform: scale(0.8); }
+  }
+
+  .btn-settings-gear {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    background: var(--surface-2);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    padding: 0;
+  }
+
+  .btn-settings-gear:hover, .btn-settings-gear:active {
+    background: var(--surface-hover);
+    color: var(--text-primary);
+    border-color: var(--sky);
+  }
+
+  .btn-settings-gear svg {
+    width: 17px;
+    height: 17px;
+    fill: currentColor;
+  }
+
+  /* -------------------------------------------------------------------------
+     MAIN APPLICATION BODY
+     ------------------------------------------------------------------------- */
+  .app-body {
+    padding: 14px 16px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .section-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+
+  .section-label span.badge {
+    font-size: 9px;
+    color: var(--sky);
+    font-weight: 700;
+  }
+
+  /* -------------------------------------------------------------------------
+     SURFACE CARD BASE
+     ------------------------------------------------------------------------- */
+  .console-card {
+    background: var(--surface-1);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 12px 14px;
+    position: relative;
+  }
+
+  /* -------------------------------------------------------------------------
+     VEHICLE & CALLSIGN SELECTOR
+     ------------------------------------------------------------------------- */
+  .veh-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .veh-btn {
+    background: var(--surface-2);
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+    padding: 10px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-align: center;
+  }
+
+  .veh-btn:hover {
+    background: var(--surface-hover);
+  }
+
+  .veh-btn.active {
+    background: rgba(56, 189, 248, 0.08);
+    border-color: var(--sky);
+    box-shadow: 0 0 0 1px var(--sky);
+  }
+
+  .veh-btn .v-icon {
+    font-size: 20px;
+    line-height: 1;
+  }
+
+  .veh-btn .v-name {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+  }
+
+  .veh-btn .v-plate {
+    font-family: var(--mono);
+    font-size: 8.5px;
+    color: var(--text-muted);
+  }
+
+  .veh-btn.active .v-plate {
+    color: var(--sky);
+  }
+
+  /* -------------------------------------------------------------------------
+     TRIAGE SEVERITY PILLS
+     ------------------------------------------------------------------------- */
+  .triage-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .triage-btn {
+    background: var(--surface-2);
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    padding: 8px 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .triage-btn:hover {
+    background: var(--surface-hover);
+  }
+
+  .triage-btn .t-lvl {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--text-secondary);
+  }
+
+  .triage-btn .t-desc {
+    font-size: 8.5px;
+    color: var(--text-muted);
+  }
+
+  .triage-btn.p1.active {
+    background: var(--crimson-dim);
+    border-color: var(--crimson);
+  }
+  .triage-btn.p1.active .t-lvl { color: var(--crimson); }
+
+  .triage-btn.p2.active {
+    background: var(--amber-dim);
+    border-color: var(--amber);
+  }
+  .triage-btn.p2.active .t-lvl { color: var(--amber); }
+
+  .triage-btn.p3.active {
+    background: rgba(56, 189, 248, 0.12);
+    border-color: var(--sky);
+  }
+  .triage-btn.p3.active .t-lvl { color: var(--sky); }
+
+  /* -------------------------------------------------------------------------
+     DESTINATION & APPROACH ROUTE
+     ------------------------------------------------------------------------- */
+  .dest-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .dest-btn {
+    background: var(--surface-2);
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+    padding: 10px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-align: left;
+  }
+
+  .dest-btn:hover {
+    background: var(--surface-hover);
+  }
+
+  .dest-btn.active {
+    background: var(--emerald-dim);
+    border-color: var(--emerald);
+    box-shadow: 0 0 0 1px var(--emerald);
+  }
+
+  .dest-btn .d-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .dest-btn .d-loc {
+    font-family: var(--mono);
+    font-size: 8.5px;
+    color: var(--text-muted);
+  }
+
+  .dest-btn.active .d-loc {
+    color: var(--emerald);
+  }
+
+  .approach-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  .approach-btn {
+    background: var(--surface-2);
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    padding: 8px 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .approach-btn:hover {
+    background: var(--surface-hover);
+  }
+
+  .approach-btn.active {
+    background: rgba(56, 189, 248, 0.08);
+    border-color: var(--sky);
+  }
+
+  .approach-btn .a-name {
+    font-size: 10.5px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .approach-btn .a-sub {
+    font-family: var(--mono);
+    font-size: 8px;
+    color: var(--text-muted);
+  }
+
+  .route-callout {
+    margin-top: 8px;
+    padding: 7px 10px;
+    border-radius: 8px;
+    background: #090e18;
+    border: 1px solid var(--border-subtle);
+    font-family: var(--mono);
+    font-size: 9.5px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* -------------------------------------------------------------------------
+     HERO DISPATCH / CLEAR ACTION BUTTON
+     ------------------------------------------------------------------------- */
+  .hero-action-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .btn-hero-action {
+    width: 100%;
+    min-height: 68px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    font-family: var(--sans);
+    transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+    background: var(--emerald);
+    color: #ffffff;
+    box-shadow: 0 4px 20px rgba(16, 185, 129, 0.25);
+    padding: 12px 16px;
+    user-select: none;
+  }
+
+  .btn-hero-action:active {
+    transform: scale(0.985);
+  }
+
+  .btn-hero-action .btn-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14.5px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+  }
+
+  .btn-hero-action .btn-subtitle {
+    font-family: var(--mono);
+    font-size: 9.5px;
+    font-weight: 500;
+    opacity: 0.88;
+    letter-spacing: 0.3px;
+  }
+
+  /* Active emergency state: turns into high-visibility alert crimson */
+  .btn-hero-action.active-run {
+    background: var(--crimson);
+    box-shadow: 0 4px 24px rgba(239, 68, 68, 0.35);
+  }
+
+  .aux-toolbar {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .btn-aux {
+    background: var(--surface-1);
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    padding: 8px 6px;
+    color: var(--text-secondary);
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    transition: all 0.15s ease;
+  }
+
+  .btn-aux:hover {
+    background: var(--surface-hover);
+    color: var(--text-primary);
+  }
+
+  .btn-aux.siren-on {
+    background: var(--crimson-dim);
+    border-color: var(--crimson);
+    color: var(--crimson);
+  }
+
+  .btn-aux.voice-on {
+    background: var(--emerald-dim);
+    border-color: var(--emerald);
+    color: var(--emerald);
+  }
+
+  /* -------------------------------------------------------------------------
+     GLOSA & LIVE TELEMETRY 3-BOX HUD
+     ------------------------------------------------------------------------- */
+  .telemetry-3box {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .tele-stat-card {
+    background: var(--surface-1);
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .tele-stat-card .label {
+    font-family: var(--mono);
+    font-size: 8.5px;
+    font-weight: 600;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .tele-stat-card .value {
+    font-family: var(--mono);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.15;
+    margin-top: 4px;
+  }
+
+  .tele-stat-card .unit {
+    font-size: 9.5px;
+    font-weight: normal;
+    color: var(--text-muted);
+  }
+
+  .tele-stat-card .status-desc {
+    font-size: 9px;
+    color: var(--emerald);
+    font-weight: 600;
+    margin-top: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .tele-stat-card.emerald .value { color: var(--emerald); }
+  .tele-stat-card.sky .value { color: var(--sky); }
+  .tele-stat-card.amber .value { color: var(--amber); }
+
+  /* -------------------------------------------------------------------------
+     GLOSA SPEED WAVE ADVISOR STRIP
+     ------------------------------------------------------------------------- */
+  .glosa-strip {
+    background: var(--surface-1);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .glosa-strip-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .glosa-badge {
+    font-family: var(--mono);
+    font-size: 9px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 12px;
+    background: var(--emerald-dim);
+    color: var(--emerald);
+    border: 1px solid var(--emerald-border);
+  }
+
+  .glosa-badge.standby {
+    background: var(--surface-2);
+    color: var(--text-muted);
+    border-color: var(--border-subtle);
+  }
+
+  .glosa-bar-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .glosa-bar-track {
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--surface-2);
+    overflow: hidden;
+  }
+
+  .glosa-bar-fill {
+    height: 100%;
+    width: 65%;
+    border-radius: 3px;
+    background: var(--emerald);
+    transition: width 0.3s ease;
+  }
+
+  .glosa-bar-labels {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 8px;
+    color: var(--text-muted);
+  }
+
+  /* -------------------------------------------------------------------------
+     CORRIDOR JUNCTION PROGRESS TRACK (J1, J2, J3)
+     ------------------------------------------------------------------------- */
+  .junction-track {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .junction-row {
+    background: var(--surface-2);
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    padding: 8px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    transition: all 0.2s ease;
+  }
+
+  .junction-row.green-wave {
+    background: var(--emerald-dim);
+    border-color: var(--emerald);
+  }
+
+  .junction-row.cleared {
+    opacity: 0.55;
+    background: #090e18;
+  }
+
+  .j-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .j-num {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    background: var(--surface-1);
+    color: var(--text-secondary);
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .junction-row.green-wave .j-num {
+    background: var(--emerald);
+    color: #fff;
+  }
+
+  .j-text h4 {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .j-text p {
+    font-family: var(--mono);
+    font-size: 8.5px;
+    color: var(--text-muted);
+  }
+
+  .signal-pill {
+    font-family: var(--mono);
+    font-size: 9px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+
+  .sig-red { background: var(--crimson-dim); color: var(--crimson); border: 1px solid var(--crimson-border); }
+  .sig-amber { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(245,158,11,0.3); }
+  .sig-green { background: var(--emerald-dim); color: var(--emerald); border: 1px solid var(--emerald-border); }
+
+  /* -------------------------------------------------------------------------
+     ACTIVE FLEET CONTAINER (Multi-Unit View)
+     ------------------------------------------------------------------------- */
+  .fleet-container {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .empty-fleet-hint {
+    padding: 10px;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    background: #090e18;
+    border-radius: 6px;
+  }
+
+  /* -------------------------------------------------------------------------
+     FOOTER STATUS
+     ------------------------------------------------------------------------- */
+  .app-footer {
+    margin-top: auto;
+    background: var(--surface-1);
+    border-top: 1px solid var(--border-subtle);
+    padding: 10px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--mono);
+    font-size: 9.5px;
+    color: var(--text-muted);
+  }
+
+  /* -------------------------------------------------------------------------
+     MODALS (SETTINGS & AUTHENTICATION)
+     ------------------------------------------------------------------------- */
+  .modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(5, 9, 16, 0.94);
+    backdrop-filter: blur(8px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+
+  .modal-card {
+    background: var(--surface-1);
+    border: 1px solid var(--border-subtle);
+    border-radius: 14px;
+    max-width: 420px;
+    width: 100%;
+    padding: 20px;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.85);
+    position: relative;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .modal-header h2 {
+    font-size: 13.5px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: var(--text-primary);
+  }
+
+  .modal-close-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: var(--surface-2);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-muted);
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  .modal-close-btn:hover {
+    color: var(--text-primary);
+    background: var(--surface-hover);
+  }
+
+  .settings-section {
+    margin-bottom: 14px;
+  }
+
+  .settings-label {
+    font-family: var(--mono);
+    font-size: 9.5px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    letter-spacing: 0.5px;
+  }
+
+  .settings-item {
+    background: var(--surface-2);
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    padding: 8px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+
+  .settings-item .k {
+    font-size: 11px;
+    color: var(--text-secondary);
+  }
+
+  .settings-item .v {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .btn-logout-danger {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    background: var(--crimson-dim);
+    border: 1px solid var(--crimson);
+    color: var(--crimson);
+    font-family: var(--mono);
+    font-size: 11.5px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 14px;
+    transition: all 0.15s ease;
+  }
+
+  .btn-logout-danger:hover {
+    background: var(--crimson);
+    color: #fff;
+  }
+
+  /* Form inputs in login modal */
+  .auth-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 12px;
+  }
+
+  .auth-input-group label {
+    font-family: var(--mono);
+    font-size: 9.5px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .auth-input {
+    width: 100%;
+    background: #090e18;
+    border: 1px solid var(--border-subtle);
+    color: #ffffff;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-family: var(--mono);
+    font-size: 12px;
+    outline: none;
+    transition: border-color 0.15s ease;
+  }
+
+  .auth-input:focus {
+    border-color: var(--sky);
+  }
+
+  .btn-auth-submit {
+    width: 100%;
+    background: #2563eb;
+    color: #ffffff;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: 12px;
+    cursor: pointer;
+    letter-spacing: 0.6px;
+    margin-top: 4px;
+    transition: background 0.15s ease;
+  }
+
+  .btn-auth-submit:hover {
+    background: #1d4ed8;
+  }
+</style>
+</head>
+<body>
+
+<!-- -----------------------------------------------------------------------
+     1. SECURE DRIVER AUTHENTICATION MODAL (PIN LOGIN)
+     ----------------------------------------------------------------------- -->
+<div id="driverAuthModal" class="modal-overlay" style="display:flex;">
+  <div class="modal-card">
+    <div style="text-align:center; margin-bottom:16px;">
+      <div style="font-size:32px; margin-bottom:6px;">🛡️</div>
+      <h2 style="font-size:15px; color:#fff; font-weight:700; text-transform:uppercase; letter-spacing:0.8px;">Official Emergency Vehicle Operator Portal</h2>
+      <p style="font-size:10px; color:var(--sky); font-family:var(--mono); margin-top:3px; font-weight:600;">MYSURU CITY TRAFFIC POLICE • EVP COMMAND</p>
+    </div>
+
+    <form onsubmit="handleDriverAuthSubmit(event); return false;">
+      <div class="auth-input-group">
+        <label>Duty / Badge ID</label>
+        <input type="text" id="txtDriverId" required placeholder="Enter Duty ID" autocomplete="username" class="auth-input">
+      </div>
+      <div class="auth-input-group">
+        <label>Security PIN</label>
+        <input type="password" id="txtDriverPin" required placeholder="Enter 4-Digit PIN" autocomplete="current-password" class="auth-input">
+      </div>
+
+      
+
+      <div id="driverAuthErr" style="display:none; color:var(--crimson); font-family:var(--mono); font-size:10.5px; text-align:center; padding:8px; background:var(--crimson-dim); border:1px solid var(--crimson-border); border-radius:6px; line-height:1.4; margin-bottom:12px;"></div>
+
+      <button type="button" id="btnSubmitDriverAuth" onclick="handleDriverAuthSubmit(event)" class="btn-auth-submit">
+        Sign In / Authorize Duty
+      </button>
+
+      <div style="font-size:9.5px; color:var(--text-muted); font-family:var(--mono); text-align:center; line-height:1.4; margin-top:12px;">
+        🔒 Unregistered personnel cannot access this console.<br>Access is strictly audited by MCTP Traffic Command.
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- -----------------------------------------------------------------------
+     2. SETTINGS / DRIVER PROFILE SLIDE-OVER MODAL
+     ----------------------------------------------------------------------- -->
+<div id="driverSettingsModal" class="modal-overlay" style="display:none;">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h2>Driver Profile &amp; Terminal Settings</h2>
+      <button class="modal-close-btn" onclick="closeSettingsModal()">✕</button>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-label">Driver Identity</div>
+      <div class="settings-item">
+        <span class="k">Assigned Duty ID</span>
+        <span class="v" id="settingsDutyId">---</span>
+      </div>
+      <div class="settings-item">
+        <span class="k">Role / Designation</span>
+        <span class="v" id="settingsRole">Emergency Medical Officer / Interceptor Lead</span>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-label">Base Station &amp; Hospital</div>
+      <div class="settings-item">
+        <span class="k">Base Station</span>
+        <span class="v">KR Hospital Trauma Care (Sector 1)</span>
+      </div>
+      <div class="settings-item">
+        <span class="k">Division</span>
+        <span class="v">MCTP Emergency Green Wave</span>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-label">Active Unit &amp; Vehicle</div>
+      <div class="settings-item">
+        <span class="k">Vehicle Profile</span>
+        <span class="v" id="settingsVehType">108 Ambulance</span>
+      </div>
+      <div class="settings-item">
+        <span class="k">Call Sign / Plate</span>
+        <span class="v" id="settingsCallsign">KA-09-G-1080</span>
+      </div>
+    </div>
+
+        <div class="settings-section">
+      <div class="settings-label">Audio &amp; Voice Guidance</div>
+      <div class="settings-item" style="cursor:pointer;" onclick="toggleVoiceAudio()">
+        <span class="k">Audio Chime &amp; Speech Alerts</span>
+        <span class="v" id="settingsVoiceStatus" style="color:var(--glosa-green); font-weight:700;">ACTIVE (ON)</span>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-label">Terminal &amp; Connection Status</div>
+      <div class="settings-item">
+        <span class="k">Server Link</span>
+        <span class="v" id="settingsServerStatus" style="color:var(--emerald);">FASTAPI LIVE</span>
+      </div>
+      <div class="settings-item">
+        <span class="k">Protocol</span>
+        <span class="v" id="settingsProtocol">EVP Preemption Protocol v3.2</span>
+      </div>
+    </div>
+
+    <button type="button" class="btn-logout-danger" onclick="logoutFromSettings()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+      SIGN OUT &amp; END SHIFT
+    </button>
+  </div>
+</div>
+
+<!-- -----------------------------------------------------------------------
+     3. MAIN AUTOMOTIVE DRIVER CONSOLE SHELL
+     ----------------------------------------------------------------------- -->
+<div class="app-shell">
+
+  <!-- TOP HEADER BAR -->
+  <header class="app-header">
+    <div class="agency-brand">
+      <div class="agency-emblem" id="appEmblem">🚑</div>
+      <div class="agency-text">
+        <h1 id="appHeaderTitle">EVP MYSURU • EMERGENCY DRIVER</h1>
+        <p id="appHeaderSub">OFFICIAL OPERATOR • 108 AROGYA KAVACHA</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <div id="driverBadge" style="display:none; align-items:center;">
+        <span id="driverBadgeId" style="display:none;">045</span>
+      </div>
+      <div class="conn-pill" id="connPill">
+        <span class="pulse-dot"></span>
+        <span id="connLabel">CONNECTED • 12ms</span>
+      </div>
+      <button class="btn-settings-gear" id="btnOpenSettings" onclick="openSettingsModal()" title="Driver Profile &amp; Settings">
+        <svg viewBox="0 0 24 24">
+          <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN SCROLLABLE MISSION AREA -->
+  <main class="app-body">
+
+    <!-- 1. VEHICLE PROFILE SWITCHER & TRIAGE -->
+    <section class="console-card">
+      <div class="section-label">
+        <span>Vehicle Profile &amp; Priority</span>
+        <span class="badge" id="vehCallsignLabel">KA-09-G-1080</span>
+      </div>
+      <div class="veh-grid">
+        <button type="button" class="veh-btn active" id="btnTypeAmb" onclick="selectVehicleProfile('AMBULANCE')">
+          <span class="v-icon">🚑</span>
+          <span class="v-name">Ambulance</span>
+          <span class="v-plate">KA-09-G-1080</span>
+        </button>
+        <button type="button" class="veh-btn" id="btnTypeFire" onclick="selectVehicleProfile('FIRE_BRIGADE')">
+          <span class="v-icon">🚒</span>
+          <span class="v-name">Fire Tender</span>
+          <span class="v-plate">KA-09-F-9110</span>
+        </button>
+        <button type="button" class="veh-btn" id="btnTypePolice" onclick="selectVehicleProfile('POLICE')">
+          <span class="v-icon">🚓</span>
+          <span class="v-name">Police Interceptor</span>
+          <span class="v-plate">KA-09-P-0100</span>
+        </button>
+      </div>
+
+      <div class="triage-grid">
+        <button type="button" class="triage-btn p1 active" onclick="setTriagePriority('P1')">
+          <span class="t-lvl">P1 • CRITICAL</span>
+          <span class="t-desc">Full Green Wave</span>
+        </button>
+        <button type="button" class="triage-btn p2" onclick="setTriagePriority('P2')">
+          <span class="t-lvl">P2 • URGENT</span>
+          <span class="t-desc">Dynamic Extension</span>
+        </button>
+        <button type="button" class="triage-btn p3" onclick="setTriagePriority('P3')">
+          <span class="t-lvl">P3 • ROUTINE</span>
+          <span class="t-desc">Standard Cycle</span>
+        </button>
+      </div>
+      <div id="selectedTriageTag" style="display:none;">PRIORITY 1</div>
+    </section>
+
+    <!-- 2. DESTINATION HOSPITAL & APPROACH ROUTE -->
+    <section class="console-card">
+      <div class="section-label">
+        <span>Destination &amp; Route</span>
+        <span class="badge" id="selectedApproachTag">WEST RUNWAY</span>
+      </div>
+      <div class="dest-grid">
+        <button type="button" class="dest-btn active" id="btnHospKR" onclick="setDestinationHospital('HOSP_KR')">
+          <span class="d-title">🏥 KR Hospital</span>
+          <span class="d-loc">Emergency Trauma Care</span>
+        </button>
+        <button type="button" class="dest-btn" id="btnHospApollo" onclick="setDestinationHospital('HOSP_APOLLO')">
+          <span class="d-title">🏥 Apollo BGS</span>
+          <span class="d-loc">Palace Road Wing</span>
+        </button>
+        <button type="button" class="dest-btn" id="btnHospManipal" onclick="setDestinationHospital('HOSP_MANIPAL')">
+          <span class="d-title">🏥 Manipal Hosp</span>
+          <span class="d-loc">Sayyaji Rao Wing</span>
+        </button>
+      </div>
+
+      <div class="approach-grid">
+        <button type="button" class="approach-btn active" id="btnApprWest" onclick="setApproachRoute('STRAIGHT')">
+          <span class="a-name">West</span>
+          <span class="a-sub">Irwin Rd</span>
+        </button>
+        <button type="button" class="approach-btn" id="btnApprEast" onclick="setApproachRoute('EAST_TURN')">
+          <span class="a-name">East</span>
+          <span class="a-sub">Railway</span>
+        </button>
+        <button type="button" class="approach-btn" id="btnApprNorth" onclick="setApproachRoute('NORTH_TURN')">
+          <span class="a-name">North</span>
+          <span class="a-sub">Sayyaji</span>
+        </button>
+        <button type="button" class="approach-btn" id="btnApprSouth" onclick="setApproachRoute('SOUTH_TURN')">
+          <span class="a-name">South</span>
+          <span class="a-sub">Palace Rd</span>
+        </button>
+      </div>
+
+      <div class="route-callout">
+        <span>🧭</span>
+        <span id="routeGuidanceText"><b>Route:</b> Straight along Irwin Road &rarr; KR Hospital Emergency Trauma Care</span>
+      </div>
+    </section>
+
+    <!-- 3. HERO ACTION BUTTON (REQUEST / CLEAR GREEN CORRIDOR) -->
+    <section class="hero-action-section">
+      <button class="btn-hero-action" id="btnEmergencyTrigger" onclick="handleEmergencyButtonClick()">
+        <div class="btn-title">
+          <span id="triggerBtnIcon">🚨</span>
+          <span id="triggerBtnText">TRIGGER GREEN WAVE CORRIDOR</span>
+        </div>
+        <div class="btn-subtitle" id="triggerBtnSub">ENGAGE 3-JUNCTION CASCADING PREEMPTION</div>
+      </button>
+
+      <div class="aux-toolbar">
+        <button class="btn-aux" id="btnSirenAudio" onclick="toggleSirenAudio()">
+          🔊 SIREN: OFF
+        </button>
+        <button class="btn-aux voice-on" id="btnVoiceAudio" onclick="toggleVoiceAudio()">
+          🎙️ VOICE: ON
+        </button>
+        <button class="btn-aux" onclick="clearCorridorFleet()">
+          🧹 CLEAR FLEET
+        </button>
+      </div>
+    </section>
+
+    <!-- 4. ACTIVE ROUTE & GLOSA TELEMETRY HUD (CLEAN 3-BOX HUD) -->
+    <section class="telemetry-3box">
+      <!-- 1. Recommended GLOSA Speed -->
+      <div class="tele-stat-card emerald">
+        <span class="label">GLOSA Target</span>
+        <div class="value">
+          <span id="glosaTargetSpeed">60</span>
+          <span class="unit">km/h</span>
+        </div>
+        <div class="status-desc" id="teleSpeed">Cruise Steady</div>
+      </div>
+
+      <!-- 2. Distance to Next Signal -->
+      <div class="tele-stat-card sky">
+        <span class="label">Next Signal Dist</span>
+        <div class="value">
+          <span id="glosaDistToJunc">-- m</span>
+        </div>
+        <div class="status-desc" id="teleEta">ETA --:--</div>
+      </div>
+
+      <!-- 3. Next Intersection Status -->
+      <div class="tele-stat-card amber">
+        <span class="label">Intersection Lock</span>
+        <div class="value" style="font-size:14px; margin-top:8px;">
+          <span id="glosaTargetJunc">STANDBY</span>
+        </div>
+        <div class="status-desc" id="lblCorridorOverall" style="color:var(--text-muted);">STANDBY (CYCLING)</div>
+      </div>
+    </section>
+
+    <!-- Hidden telemetry helpers for script compatibility -->
+    <div style="display:none;">
+      <span id="teleLocation">STANDBY AT BASE • READY FOR DISPATCH</span>
+      <span id="teleDest">KR HOSP</span>
+      <span id="teleSaved">0s</span>
+      <div id="glosaDeck">
+        <span id="glosaWaveStatus">STANDBY</span>
+        <span id="glosaAdviceText">Optimal speed wave active. Cruise steady.</span>
+        <div id="glosaSpeedBar" style="width:65%;"></div>
+      </div>
+    </div>
+
+    <!-- 5. CORRIDOR SIGNAL SEQUENCE TRACK (J1, J2, J3) -->
+    <section class="console-card">
+      <div class="section-label">
+        <span>Cascading Signal Progression</span>
+        <span class="badge" id="activeCountBadge">0 EN ROUTE</span>
+      </div>
+      <div class="junction-track">
+        <!-- Junction 1 -->
+        <div class="junction-row" id="jStep1">
+          <div class="j-info">
+            <div class="j-num">1</div>
+            <div class="j-text">
+              <h4>Ayurvedic Hospital Circle</h4>
+              <p id="jSub1">West Sector Entrance • 240m</p>
+            </div>
+          </div>
+          <div class="signal-pill sig-red" id="jSigBadge1">RED (CYCLE)</div>
+        </div>
+
+        <!-- Junction 2 -->
+        <div class="junction-row" id="jStep2">
+          <div class="j-info">
+            <div class="j-num">2</div>
+            <div class="j-text">
+              <h4>Irwin Road Crossing</h4>
+              <p id="jSub2">Commercial Sector Midpoint • 560m</p>
+            </div>
+          </div>
+          <div class="signal-pill sig-red" id="jSigBadge2">RED (CYCLE)</div>
+        </div>
+
+        <!-- Junction 3 -->
+        <div class="junction-row" id="jStep3">
+          <div class="j-info">
+            <div class="j-num">3</div>
+            <div class="j-text">
+              <h4>KR Hospital Emergency Gate</h4>
+              <p id="jSub3">Trauma Bay Entrance • 890m</p>
+            </div>
+          </div>
+          <div class="signal-pill sig-red" id="jSigBadge3">RED (CYCLE)</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. ACTIVE UNITS FLEET CONTAINER -->
+    <section class="console-card" id="fleetSection" style="display:none;">
+      <div class="section-label">
+        <span>Active Emergency Run</span>
+      </div>
+      <div class="fleet-container" id="fleetUnitsContainer">
+        <div class="empty-fleet-hint">No active units currently en route.</div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- CONSOLE FOOTER -->
+  <footer class="app-footer">
+    <span>MCTP Traffic Command • EVP Terminal</span>
+    <span id="syncModePill">WEBSOCKET + POLLING ACTIVE</span>
+  </footer>
+
+</div>
+
+<!-- -----------------------------------------------------------------------
+     JAVASCRIPT LOGIC (PRESERVES 100% OF BACKEND APIS & AUTHENTICATION)
+     ----------------------------------------------------------------------- -->
+<script>
+// Safe Storage Fallback Proxy (Prevents Browser Tracking Prevention Block Warnings)
+const _memSession = {};
+const _memLocal = {};
+const safeSession = {
+  getItem: (k) => { try { return window.sessionStorage ? window.safeSession.getItem(k) : _memSession[k]; } catch(e) { return _memSession[k] || null; } },
+  setItem: (k, v) => { try { _memSession[k] = v; if (window.sessionStorage) window.safeSession.setItem(k, v); } catch(e) {} },
+  removeItem: (k) => { try { delete _memSession[k]; if (window.sessionStorage) window.safeSession.removeItem(k); } catch(e) {} }
+};
+const safeLocal = {
+  getItem: (k) => { try { return window.localStorage ? window.safeLocal.getItem(k) : _memLocal[k]; } catch(e) { return _memLocal[k] || null; } },
+  setItem: (k, v) => { try { _memLocal[k] = v; if (window.localStorage) window.safeLocal.setItem(k, v); } catch(e) {} },
+  removeItem: (k) => { try { delete _memLocal[k]; if (window.localStorage) window.safeLocal.removeItem(k); } catch(e) {} }
+};
+
+/* =========================================================================
+   MYSURU EMERGENCY PREEMPTION DRIVER APP
+   Executive Automotive Emergency CAD Console
+   ========================================================================= */
+
+let currentVehicleType = 'AMBULANCE';
+let currentTriage = 'P1';
+let selectedHospital = 'HOSP_KR';
+let selectedHospitalName = 'KR Hospital Trauma Care & Emergency';
+let selectedApproachRoute = 'STRAIGHT';
+let isPreemptionActive = false;
+let dispatchCounter = 0;
+let activeFleet = [];
+let sirenAudioOn = false;
+let myActiveVehicleId = null;
+let inMemoryDriverUser = null;
+let myDriverId = '045';
+
+// ---------------------------------------------------------------------------
+// Settings Modal Controls
+// ---------------------------------------------------------------------------
+function openSettingsModal() {
+  const dId = getLoggedInDriverId() || '045';
+  const dutyEl = document.getElementById('settingsDutyId');
+  const roleEl = document.getElementById('settingsRole');
+  const typeEl = document.getElementById('settingsVehType');
+  const plateEl = document.getElementById('settingsCallsign');
+
+  if (dutyEl) dutyEl.textContent = dId;
+  if (roleEl) {
+    const roles = {
+      '045': 'Traffic Officer / Lead Interceptor',
+      '071': 'Emergency Medical Technician / Driver',
+      '099': 'Senior Traffic Inspector',
+      '109': 'Ambulance Pilot / Paramedic'
+    };
+    roleEl.textContent = roles[dId] || 'Emergency Vehicle Operator';
+  }
+  if (typeEl) {
+    const names = {
+      'AMBULANCE': '108 Ambulance (Force Traveller)',
+      'FIRE_BRIGADE': 'Fire Brigade (Heavy Tender)',
+      'POLICE': 'Police Pursuit Interceptor'
+    };
+    typeEl.textContent = names[currentVehicleType] || '108 Ambulance';
+  }
+  if (plateEl) {
+    const plates = {
+      'AMBULANCE': 'KA-09-G-1080',
+      'FIRE_BRIGADE': 'KA-09-F-9110',
+      'POLICE': 'KA-09-P-0100'
+    };
+    plateEl.textContent = plates[currentVehicleType] || 'KA-09-G-1080';
+  }
+
+  const modal = document.getElementById('driverSettingsModal');
+  if (modal) modal.style.display = 'flex';
+}
+
+function closeSettingsModal() {
+  const modal = document.getElementById('driverSettingsModal');
+  if (modal) modal.style.display = 'none';
+}
+
+function logoutFromSettings() {
+  closeSettingsModal();
+  logoutDriver();
+}
+
+// ---------------------------------------------------------------------------
+// Identity & Session Validation
+// ---------------------------------------------------------------------------
+function isSameDriverId(a, b) {
+  if (!a || !b) return false;
+  const strA = String(a).trim().toLowerCase();
+  const strB = String(b).trim().toLowerCase();
+  if (strA === strB) return true;
+  const normA = strA.replace(/^0+/, '');
+  const normB = strB.replace(/^0+/, '');
+  if (normA.length > 0 && normA === normB) return true;
+  return false;
+}
+
+function getLoggedInDriverId() {
+  if (inMemoryDriverUser && inMemoryDriverUser.id) {
+    const raw = String(inMemoryDriverUser.id).trim();
+    return (raw.length < 3 && /^\d+$/.test(raw)) ? raw.padStart(3, '0') : raw;
+  }
+  try {
+    const sUser = safeSession.getItem('GREEN_CORRIDOR_DRIVER_USER');
+    if (sUser) {
+      const uData = JSON.parse(sUser);
+      if (uData && uData.id) {
+        const raw = String(uData.id).trim();
+        return (raw.length < 3 && /^\d+$/.test(raw)) ? raw.padStart(3, '0') : raw;
+      }
+    }
+  } catch(e) {}
+  return null;
+}
+
+// ---------------------------------------------------------------------------
+// 1. Vehicle Profile Selection
+// ---------------------------------------------------------------------------
+function selectVehicleProfile(type) {
+  currentVehicleType = type;
+  document.getElementById('btnTypeAmb')?.classList.remove('active');
+  document.getElementById('btnTypeFire')?.classList.remove('active');
+  document.getElementById('btnTypePolice')?.classList.remove('active');
+
+  const emblem = document.getElementById('appEmblem');
+  const sub = document.getElementById('appHeaderSub');
+  const callsign = document.getElementById('vehCallsignLabel');
+  const triggerBtn = document.getElementById('triggerBtnText');
+  const triggerIcon = document.getElementById('triggerBtnIcon');
+  const dId = getLoggedInDriverId() || '045';
+
+  if (type === 'FIRE_BRIGADE') {
+    document.getElementById('btnTypeFire')?.classList.add('active');
+    if (emblem) emblem.textContent = '🚒';
+    if (sub) sub.textContent = `DUTY #${dId} • FIRE TENDER T-01`;
+    if (callsign) callsign.textContent = 'KA-09-F-9110';
+    if (triggerBtn) triggerBtn.textContent = isPreemptionActive ? 'DISPATCH ANOTHER FIRE TENDER' : 'REQUEST GREEN CORRIDOR';
+    if (triggerIcon) triggerIcon.textContent = '🚒';
+    showToast('🚒 Selected: Fire Brigade (Heavy Tender T-01)');
+    speakGuidance("Fire Tender selected.");
+  } else if (type === 'POLICE') {
+    document.getElementById('btnTypePolice')?.classList.add('active');
+    if (emblem) emblem.textContent = '🚓';
+    if (sub) sub.textContent = `DUTY #${dId} • POLICE INTERCEPTOR`;
+    if (callsign) callsign.textContent = 'KA-09-P-0100';
+    if (triggerBtn) triggerBtn.textContent = isPreemptionActive ? 'DISPATCH ANOTHER POLICE UNIT' : 'REQUEST GREEN CORRIDOR';
+    if (triggerIcon) triggerIcon.textContent = '🚓';
+    showToast('🚓 Selected: Police Interceptor');
+    speakGuidance("Police Interceptor selected.");
+  } else {
+    document.getElementById('btnTypeAmb')?.classList.add('active');
+    if (emblem) emblem.textContent = '🚑';
+    if (sub) sub.textContent = `DUTY #${dId} • 108 AROGYA KAVACHA`;
+    if (callsign) callsign.textContent = 'KA-09-G-1080';
+    if (triggerBtn) triggerBtn.textContent = isPreemptionActive ? 'DISPATCH ANOTHER AMBULANCE' : 'REQUEST GREEN CORRIDOR';
+    if (triggerIcon) triggerIcon.textContent = '🚑';
+    showToast('🚑 Selected: 108 Arogya Kavacha Ambulance');
+    speakGuidance("108 Ambulance selected.");
+  }
+
+  const triggerSub = document.getElementById('triggerBtnSub');
+  if (triggerSub && !isPreemptionActive) {
+    triggerSub.textContent = 'ENGAGE 3-JUNCTION CASCADING PREEMPTION';
+  }
+
+  if (navigator.vibrate) navigator.vibrate(30);
+}
+
+// ---------------------------------------------------------------------------
+// 2. Destination Hospital Selection
+// ---------------------------------------------------------------------------
+function setDestinationHospital(hospCode) {
+  selectedHospital = hospCode;
+  document.getElementById('btnHospKR')?.classList.remove('active');
+  document.getElementById('btnHospApollo')?.classList.remove('active');
+  document.getElementById('btnHospManipal')?.classList.remove('active');
+
+  const note = document.getElementById('routeGuidanceText');
+
+  if (hospCode === 'HOSP_APOLLO') {
+    document.getElementById('btnHospApollo')?.classList.add('active');
+    selectedHospitalName = 'Apollo BGS Multi-Speciality (Cardiac ICU)';
+    if (note) note.innerHTML = '<b>Route:</b> Irwin Rd &rarr; <b>TURN RIGHT at [J2] Palace Rd</b> &rarr; Apollo BGS Multi-Speciality';
+  } else if (hospCode === 'HOSP_MANIPAL') {
+    document.getElementById('btnHospManipal')?.classList.add('active');
+    selectedHospitalName = 'Manipal Super Speciality Hospital';
+    if (note) note.innerHTML = '<b>Route:</b> Irwin Rd &rarr; <b>TURN LEFT at [J1] Sayyaji North</b> &rarr; Manipal Super Speciality';
+  } else {
+    document.getElementById('btnHospKR')?.classList.add('active');
+    selectedHospitalName = 'KR Hospital Trauma Care & Emergency';
+    if (note) note.innerHTML = '<b>Route:</b> Straight along Irwin Road &rarr; KR Hospital Emergency Trauma Care';
+  }
+
+  const teleDestEl = document.getElementById('teleDest');
+  if (teleDestEl) {
+    const shortNames = {
+      'HOSP_APOLLO': 'APOLLO BGS',
+      'HOSP_MANIPAL': 'MANIPAL HOSP',
+      'HOSP_KR': 'KR HOSP'
+    };
+    teleDestEl.textContent = shortNames[hospCode] || 'KR HOSP';
+    teleDestEl.title = selectedHospitalName;
+  }
+
+  showToast(`🎯 Destination: ${selectedHospitalName}`);
+  if (navigator.vibrate) navigator.vibrate(25);
+}
+
+// ---------------------------------------------------------------------------
+// 2B. Approach Origin Corridor Selection
+// ---------------------------------------------------------------------------
+function setApproachRoute(routeCode) {
+  selectedApproachRoute = routeCode;
+  ['btnApprWest', 'btnApprEast', 'btnApprNorth', 'btnApprSouth'].forEach(id => {
+    document.getElementById(id)?.classList.remove('active');
+  });
+  const tagEl = document.getElementById('selectedApproachTag');
+  const noteEl = document.getElementById('routeGuidanceText');
+  let label = 'West Irwin Road Runway';
+
+  if (routeCode === 'STRAIGHT') {
+    document.getElementById('btnApprWest')?.classList.add('active');
+    if (tagEl) tagEl.textContent = 'WEST RUNWAY';
+    if (noteEl) noteEl.innerHTML = '<b>Route:</b> West Irwin Road Runway &rarr; Eastbound Green Wave';
+    label = 'West (Irwin Road Runway)';
+  } else if (routeCode === 'EAST_TURN') {
+    document.getElementById('btnApprEast')?.classList.add('active');
+    if (tagEl) tagEl.textContent = 'EAST ENTRY';
+    if (noteEl) noteEl.innerHTML = '<b>Route:</b> East Entry (Railway / Subbarayanakere) &rarr; Westbound Corridor';
+    label = 'East (Railway / Subbarayanakere)';
+  } else if (routeCode === 'NORTH_TURN') {
+    document.getElementById('btnApprNorth')?.classList.add('active');
+    if (tagEl) tagEl.textContent = 'NORTH SAYYAJI';
+    if (noteEl) noteEl.innerHTML = '<b>Route:</b> North Sayyaji Rao Approach &rarr; Southbound Preemption';
+    label = 'North (Sayyaji Rao Approach)';
+  } else if (routeCode === 'SOUTH_TURN') {
+    document.getElementById('btnApprSouth')?.classList.add('active');
+    if (tagEl) tagEl.textContent = 'SOUTH PALACE';
+    if (noteEl) noteEl.innerHTML = '<b>Route:</b> South Mysore Palace Approach &rarr; Northbound Preemption';
+    label = 'South (Palace Road Approach)';
+  }
+
+  showToast(`🧭 Approach Origin: ${label}`);
+  if (navigator.vibrate) navigator.vibrate(20);
+}
+
+// ---------------------------------------------------------------------------
+// 3. Triage Severity Selection
+// ---------------------------------------------------------------------------
+function setTriagePriority(lvl) {
+  currentTriage = lvl;
+  document.querySelectorAll('.triage-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.triage-btn.${lvl.toLowerCase()}`)?.classList.add('active');
+
+  const labels = {
+    P1: 'PRIORITY 1 (FULL GREEN WAVE)',
+    P2: 'PRIORITY 2 (DYNAMIC EXTENSION)',
+    P3: 'PRIORITY 3 (ROUTINE CYCLE)'
+  };
+  const tag = document.getElementById('selectedTriageTag');
+  if (tag) tag.textContent = labels[lvl] || lvl;
+
+  showToast(`⚡ Triage: ${labels[lvl] || lvl}`);
+  speakGuidance(`Priority ${lvl} selected.`);
+  if (navigator.vibrate) navigator.vibrate(30);
+}
+
+// ---------------------------------------------------------------------------
+// 4. Primary Emergency Trigger Action
+// ---------------------------------------------------------------------------
+let lastDriverDispatchTime = 0;
+function handleEmergencyButtonClick() {
+  const dId = getLoggedInDriverId();
+  if (!dId) {
+    showToast('⚠️ Authentication required. Please log in with Duty ID & PIN.');
+    showDriverLoginModal();
+    return;
+  }
+
+  // If already active, handle cancel/clear
+  if (isPreemptionActive) {
+    clearCorridorFleet();
+    return;
+  }
+
+  const btn = document.getElementById('btnEmergencyTrigger');
+  if (btn && btn.disabled) return;
+  const now = Date.now();
+  if (now - lastDriverDispatchTime < 200) return;
+  lastDriverDispatchTime = now;
+
+  if (btn) {
+    btn.disabled = true;
+    setTimeout(() => { if (btn) btn.disabled = false; }, 200);
+  }
+
+  initAudio();
+  dispatchNewEmergencyRun();
+}
+
+function dispatchNewEmergencyRun() {
+  const dId = getLoggedInDriverId() || '045';
+  dispatchCounter++;
+  myDriverId = dId;
+  const prefix = (currentVehicleType === 'FIRE_BRIGADE') ? 'FIRE' : (currentVehicleType === 'POLICE' ? 'POL' : 'AMB');
+  const unitId = `${prefix}-${dId}-${String(dispatchCounter).padStart(2, '0')}`;
+  myActiveVehicleId = unitId;
+  const evEventId = 'DRV_DISP_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+
+  isPreemptionActive = true;
+  const btn = document.getElementById('btnEmergencyTrigger');
+  btn?.classList.add('active-run');
+
+  const vName = (currentVehicleType === 'FIRE_BRIGADE') ? 'Fire Tender' : ((currentVehicleType === 'POLICE') ? 'Police Interceptor' : '108 Ambulance');
+  const tName = (currentTriage === 'P2') ? 'Priority 2' : ((currentTriage === 'P3') ? 'Priority 3' : 'Priority 1');
+
+  document.getElementById('triggerBtnIcon').textContent = '🚨';
+  document.getElementById('triggerBtnText').textContent = 'CORRIDOR ACTIVE • CANCEL / CLEAR';
+  document.getElementById('triggerBtnSub').textContent = `ACTIVE: ${unitId} [${currentTriage}] • TAP TO TERMINATE RUN`;
+
+  const statusHud = (currentTriage === 'P2') ? 'P2 DYNAMIC ACTIVE' : ((currentTriage === 'P3') ? 'P3 ROUTINE ACTIVE' : 'GREEN WAVE ACTIVE');
+  const overallEl = document.getElementById('lblCorridorOverall');
+  if (overallEl) {
+    overallEl.textContent = statusHud;
+    overallEl.style.color = (currentTriage === 'P3') ? 'var(--amber)' : 'var(--emerald)';
+  }
+
+  if (sirenAudioOn) startSirenTone();
+  if (navigator.vibrate) navigator.vibrate([160, 80, 240]);
+
+  const speedVal = (currentVehicleType === 'POLICE' ? 75 : (currentVehicleType === 'FIRE_BRIGADE' ? 60 : 65));
+  const teleSpeedEl = document.getElementById('teleSpeed');
+  if (teleSpeedEl) teleSpeedEl.textContent = `${speedVal} km/h Cruise`;
+
+  const glosaSpeedEl = document.getElementById('glosaTargetSpeed');
+  if (glosaSpeedEl) glosaSpeedEl.textContent = speedVal;
+
+  const fleetSec = document.getElementById('fleetSection');
+  if (fleetSec) fleetSec.style.display = 'block';
+
+  // Broadcast dispatch action to corridor simulation
+  broadcastAction({
+    eventId: evEventId,
+    type: 'DRIVER_DISPATCH',
+    driverId: dId,
+    vehicleType: currentVehicleType,
+    triage: currentTriage,
+    targetHospital: selectedHospital,
+    hospitalName: selectedHospitalName,
+    approachRoute: selectedApproachRoute,
+    vehicleId: unitId,
+    timestamp: Date.now()
+  });
+
+  addOrUpdateActiveUnit({
+    id: unitId,
+    driverId: dId,
+    vehicleType: currentVehicleType,
+    triage: currentTriage,
+    hospital: selectedHospitalName,
+    approachRoute: selectedApproachRoute,
+    speedKmh: speedVal,
+    status: 'EN ROUTE'
+  });
+
+  showToast(`🚨 DISPATCHED: <b>${unitId}</b> &rarr; ${selectedHospitalName}`);
+  speakGuidance(`${vName}, ${tName} corridor engaged.`, true);
+}
+
+function clearCorridorFleet() {
+  isPreemptionActive = false;
+  activeFleet = [];
+  const btn = document.getElementById('btnEmergencyTrigger');
+  btn?.classList.remove('active-run');
+
+  document.getElementById('triggerBtnIcon').textContent = '🚨';
+  document.getElementById('triggerBtnText').textContent = 'TRIGGER GREEN WAVE CORRIDOR';
+  document.getElementById('triggerBtnSub').textContent = 'ENGAGE 3-JUNCTION CASCADING PREEMPTION';
+
+  const overallEl = document.getElementById('lblCorridorOverall');
+  if (overallEl) {
+    overallEl.textContent = 'STANDBY (CYCLING)';
+    overallEl.style.color = 'var(--text-muted)';
+  }
+
+  const teleSpeedEl = document.getElementById('teleSpeed');
+  if (teleSpeedEl) teleSpeedEl.textContent = 'Standby';
+
+  const teleEtaEl = document.getElementById('teleEta');
+  if (teleEtaEl) teleEtaEl.textContent = 'ETA --:--';
+
+  const glosaTargetEl = document.getElementById('glosaTargetJunc');
+  if (glosaTargetEl) glosaTargetEl.textContent = 'STANDBY';
+
+  const glosaDistEl = document.getElementById('glosaDistToJunc');
+  if (glosaDistEl) glosaDistEl.textContent = '-- m';
+
+  const fleetSec = document.getElementById('fleetSection');
+  if (fleetSec) fleetSec.style.display = 'none';
+
+  renderFleetDeck();
+  resetJunctionSteps();
+  stopSirenTone();
+  updateGlosaDeck(null, null);
+
+  speakGuidance("Emergency corridor cleared. Signals restored to normal cycle.", true);
+  if (navigator.vibrate) navigator.vibrate(80);
+
+  broadcastAction({
+    type: 'DRIVER_CANCEL',
+    timestamp: Date.now()
+  });
+}
+
+function addOrUpdateActiveUnit(unit) {
+  const existing = activeFleet.find(u => u.id === unit.id);
+  if (existing) {
+    Object.assign(existing, unit);
+  } else {
+    activeFleet.push(unit);
+  }
+
+  if (unit.status && (unit.status.includes('CLEARED') || unit.status.includes('DOCKED'))) {
+    setTimeout(() => {
+      activeFleet = activeFleet.filter(u => u.id !== unit.id);
+      renderFleetDeck();
+    }, 10000);
+  }
+
+  renderFleetDeck();
+}
+
+function renderFleetDeck() {
+  const container = document.getElementById('fleetUnitsContainer');
+  const badge = document.getElementById('activeCountBadge');
+  const fleetSec = document.getElementById('fleetSection');
+
+  const myId = getLoggedInDriverId() || '045';
+  const myUnits = activeFleet.filter(u => (myActiveVehicleId && u.id === myActiveVehicleId) || isSameDriverId(u.driverId, myId));
+  const enRouteUnits = myUnits.filter(u => !u.status.includes('CLEARED') && !u.status.includes('DOCKED'));
+
+  if (badge) badge.textContent = `${enRouteUnits.length} EN ROUTE`;
+
+  if (enRouteUnits.length > 0 && fleetSec) {
+    fleetSec.style.display = 'block';
+  }
+
+  if (!container) return;
+
+  if (myUnits.length === 0) {
+    container.innerHTML = `<div class="empty-fleet-hint">No active units for Driver #${myId}.</div>`;
+    return;
+  }
+
+  container.innerHTML = myUnits.map(u => {
+    const isFinished = u.status.includes('CLEARED') || u.status.includes('DOCKED');
+    const icon = u.vehicleType === 'FIRE_BRIGADE' ? '🚒' : (u.vehicleType === 'POLICE' ? '🚓' : '🚑');
+    const statusColor = isFinished ? 'var(--emerald)' : 'var(--sky)';
+    return `
+      <div style="background:var(--surface-2); border:1px solid var(--border-subtle); border-radius:8px; padding:8px 10px; display:flex; flex-direction:column; gap:4px;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div style="display:flex; align-items:center; gap:6px;">
+            <span style="font-size:14px;">${icon}</span>
+            <span style="font-size:11.5px; font-weight:700; color:#fff;">${u.id}</span>
+            <span style="font-family:var(--mono); font-size:8.5px; padding:1px 5px; border-radius:3px; background:rgba(56,189,248,0.2); color:var(--sky); font-weight:700;">YOU (#${myId})</span>
+          </div>
+          <span style="font-family:var(--mono); font-size:9.5px; font-weight:700; color:${statusColor};">${isFinished ? '✅ ' + u.status : u.status}</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:9.5px; color:var(--text-muted); font-family:var(--mono);">
+          <span>🎯 ${u.hospital}</span>
+          <span>${isFinished ? '0 km/h (Docked)' : (u.speedKmh || 65) + ' km/h'}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ---------------------------------------------------------------------------
+// 5. Real-Time Telemetry, WebSockets & Guaranteed Polling Fallback
+// ---------------------------------------------------------------------------
+const BUS_NAME = 'GREEN_CORRIDOR_MYSURU';
+const bc = (typeof BroadcastChannel !== 'undefined') ? new BroadcastChannel(BUS_NAME) : null;
+if (bc) bc.onmessage = (e) => handleIncomingMessage(e.data);
+
+window.addEventListener('storage', (e) => {
+  if (e.key === 'GREEN_CORRIDOR_SIM_UPDATE' && e.newValue) {
+    try { handleIncomingMessage(JSON.parse(e.newValue)); } catch (err) {}
+  }
+});
+
+let ws = null;
+let lastServerSeq = 0;
+
+function initWs() {
+  if (location.protocol === 'file:') return;
+  const proto = (location.protocol === 'https:') ? 'wss:' : 'ws:';
+  const host = location.host || 'localhost:8000';
+  try {
+    ws = new WebSocket(`${proto}//${host}/ws/live`);
+    ws.onopen = () => {
+      const pill = document.getElementById('connLabel');
+      if (pill) pill.textContent = 'CONNECTED • 12ms';
+      const syncPill = document.getElementById('syncModePill');
+      if (syncPill) syncPill.textContent = 'WS + POLLING ACTIVE';
+      const srvStatus = document.getElementById('settingsServerStatus');
+      if (srvStatus) {
+        srvStatus.textContent = 'WS LIVE • 12ms';
+        srvStatus.style.color = 'var(--emerald)';
+      }
+    };
+    ws.onmessage = (evt) => {
+      try { handleIncomingMessage(JSON.parse(evt.data)); } catch (err) {}
+    };
+    ws.onclose = () => {
+      const pill = document.getElementById('connLabel');
+      if (pill) pill.textContent = 'HTTP POLLING';
+      setTimeout(initWs, 3000);
+    };
+  } catch (e) {}
+}
+initWs();
+
+// Continuous polling fallback to /api/driver/actions/latest
+setInterval(() => {
+  const pollUrl = (location.protocol === 'file:')
+    ? `http://localhost:8000/api/driver/actions/latest?since_seq=${lastServerSeq}`
+    : `/api/driver/actions/latest?since_seq=${lastServerSeq}`;
+
+  fetch(pollUrl, { cache: 'no-store' })
+    .then(r => r.json())
+    .then(data => {
+      if (data && Array.isArray(data.actions)) {
+        data.actions.forEach(act => {
+          if (act.seq && act.seq > lastServerSeq) lastServerSeq = act.seq;
+          handleIncomingMessage(act);
+        });
+      }
+    })
+    .catch(() => {});
+}, 500);
+
+function showToast(msg) {
+  let toast = document.getElementById('driverToast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'driverToast';
+    toast.style.cssText = 'position:fixed; top:58px; left:50%; transform:translateX(-50%); background:#131b2e; color:#fff; border:1px solid #1e293b; padding:8px 16px; border-radius:20px; font-family:var(--mono); font-size:10.5px; font-weight:600; z-index:9000; box-shadow:0 8px 24px rgba(0,0,0,0.7); pointer-events:none; transition:all 0.25s ease; opacity:0; text-align:center; max-width:92%;';
+    document.body.appendChild(toast);
+  }
+  toast.innerHTML = msg;
+  toast.style.opacity = '1';
+  toast.style.transform = 'translateX(-50%) translateY(0)';
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateX(-50%) translateY(-8px)';
+  }, 2800);
+}
+
+function broadcastAction(data) {
+  if (bc) {
+    try { bc.postMessage(data); } catch(e) {}
+  }
+  try {
+    safeLocal.setItem('GREEN_CORRIDOR_DRIVER_EVENT', JSON.stringify({ ...data, _ts: Date.now() }));
+  } catch(e) {}
+  if (ws && ws.readyState === WebSocket.OPEN) {
+    try { ws.send(JSON.stringify(data)); } catch(e) {}
+  }
+
+  const payloadStr = JSON.stringify(data);
+  const actionUrl = (location.protocol === 'file:') ? 'http://localhost:8000/api/driver/action' : '/api/driver/action';
+
+  fetch(actionUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: payloadStr,
+    cache: 'no-store',
+    keepalive: true
+  }).then(res => res.json()).then(() => {
+    const pill = document.getElementById('connLabel');
+    if (pill) {
+      pill.textContent = 'SENT ✔';
+      setTimeout(() => {
+        pill.textContent = 'CONNECTED • 12ms';
+      }, 1500);
+    }
+  }).catch(() => {});
+}
+
+const seenDriverAppEvents = new Set();
+function handleIncomingMessage(msg) {
+  if (!msg) return;
+
+  if (msg.eventId) {
+    if (seenDriverAppEvents.has(msg.eventId)) return;
+    seenDriverAppEvents.add(msg.eventId);
+    if (seenDriverAppEvents.size > 200) {
+      const first = seenDriverAppEvents.values().next().value;
+      seenDriverAppEvents.delete(first);
+    }
+  }
+
+  if (msg.type === 'SIM_DISPATCH') {
+    const myId = getLoggedInDriverId();
+    const isMine = (myActiveVehicleId && msg.vehicleId === myActiveVehicleId) || isSameDriverId(msg.driverId, myId);
+    if (!isMine) return;
+
+    addOrUpdateActiveUnit({
+      id: msg.vehicleId || `EV-${++dispatchCounter}`,
+      driverId: msg.driverId || myId,
+      vehicleType: msg.vehicleType || currentVehicleType,
+      triage: msg.triage || 'P1',
+      hospital: msg.hospitalName || selectedHospitalName,
+      speedKmh: (msg.vehicleType === 'POLICE' ? 75 : (msg.vehicleType === 'FIRE_BRIGADE' ? 60 : 65)),
+      status: 'EN ROUTE'
+    });
+
+    isPreemptionActive = true;
+    const btn = document.getElementById('btnEmergencyTrigger');
+    btn?.classList.add('active-run');
+    document.getElementById('triggerBtnIcon').textContent = '🚨';
+    document.getElementById('triggerBtnText').textContent = 'CORRIDOR ACTIVE • CANCEL / CLEAR';
+    document.getElementById('triggerBtnSub').textContent = `ACTIVE: ${msg.vehicleId || 'EV'} • TAP TO TERMINATE`;
+
+    const overallEl = document.getElementById('lblCorridorOverall');
+    if (overallEl) {
+      overallEl.textContent = 'GREEN WAVE ACTIVE';
+      overallEl.style.color = 'var(--emerald)';
+    }
+
+    const fleetSec = document.getElementById('fleetSection');
+    if (fleetSec) fleetSec.style.display = 'block';
+
+  } else if (msg.type === 'SIM_RESET') {
+    clearCorridorFleet();
+  } else if (msg.type === 'SIM_CLEARED') {
+    handleMissionArrival(msg.hospital);
+  }
+      if (msg.vehicleId) {
+        addOrUpdateActiveUnit({
+          id: msg.vehicleId,
+          vehicleType: msg.vehicleType,
+          status: 'CLEARED CORRIDOR',
+          speedKmh: 0
+        });
+      }
+    }
+  }
+
+  // Live Corridor Telemetry update
+  if (msg.type === 'CORRIDOR_TELEMETRY') {
+    const myId = getLoggedInDriverId();
+    let myUnit = (msg.activeUnits && Array.isArray(msg.activeUnits))
+      ? msg.activeUnits.find(u => (myActiveVehicleId && u.id === myActiveVehicleId) || isSameDriverId(u.driverId, myId))
+      : null;
+
+    if (!myUnit && isPreemptionActive && msg.activeUnits && msg.activeUnits.length > 0) {
+      myUnit = msg.activeUnits.find(u => isSameDriverId(u.driverId, myId)) || (msg.activeUnits.length === 1 ? msg.activeUnits[0] : null);
+    }
+
+    if (myUnit) {
+      const teleSpeedEl = document.getElementById('teleSpeed');
+      if (teleSpeedEl) teleSpeedEl.textContent = `${Math.round(myUnit.speedKmh)} km/h Current`;
+
+      if (myUnit.arrived || myUnit.cleared) {
+        handleMissionArrival(myUnit.hospital);
+      }
+        const teleEtaEl = document.getElementById('teleEta');
+        if (teleEtaEl) teleEtaEl.textContent = 'ETA 00:00';
+      } else {
+        if (msg.etaSec !== undefined) {
+          const etaM = Math.floor(msg.etaSec / 60);
+          const etaS = Math.floor(msg.etaSec % 60).toString().padStart(2, '0');
+          const teleEtaEl = document.getElementById('teleEta');
+          if (teleEtaEl) teleEtaEl.textContent = `ETA ${etaM}:${etaS}`;
+        }
+      }
+
+      // Update 3 Junction Step Indicators
+            const leadU = myUnit || (msg.activeUnits && msg.activeUnits.length > 0 ? msg.activeUnits[0] : null);
+      const j1d = leadU ? leadU.j1Dist : (msg.j1 ? msg.j1.dist : 240);
+      const j2d = leadU ? leadU.j2Dist : (msg.j2 ? msg.j2.dist : 560);
+      const j3d = leadU ? leadU.j3Dist : (msg.j3 ? msg.j3.dist : 890);
+
+      updateJunctionStep(1, {
+        name: 'Ayurveda Circle',
+        dist: j1d,
+        passed: j1d <= -15 || (msg.j1 && msg.j1.passed),
+        isPreemptGreen: msg.j1 ? msg.j1.isPreemptGreen : true,
+        isPreemptClearance: msg.j1 ? msg.j1.isPreemptClearance : false,
+        signalColor: msg.j1 ? msg.j1.signalColor : 'GREEN'
+      });
+
+      updateJunctionStep(2, {
+        name: 'Irwin Road Cross',
+        dist: j2d,
+        passed: j2d <= -15 || (msg.j2 && msg.j2.passed),
+        isPreemptGreen: msg.j2 ? msg.j2.isPreemptGreen : true,
+        isPreemptClearance: msg.j2 ? msg.j2.isPreemptClearance : false,
+        signalColor: msg.j2 ? msg.j2.signalColor : 'GREEN'
+      });
+
+      updateJunctionStep(3, {
+        name: 'KR Hospital Gate',
+        dist: j3d,
+        passed: j3d <= -15 || (msg.j3 && msg.j3.passed),
+        isPreemptGreen: msg.j3 ? msg.j3.isPreemptGreen : true,
+        isPreemptClearance: msg.j3 ? msg.j3.isPreemptClearance : false,
+        signalColor: msg.j3 ? msg.j3.signalColor : 'GREEN'
+      });
+
+      // Update GLOSA Telemetry
+      updateGlosaDeck(myUnit, msg);
+      updateVoiceGuidance(myUnit, msg);
+    }
+
+    if (msg.activeUnits && Array.isArray(msg.activeUnits)) {
+      msg.activeUnits.forEach(u => {
+        addOrUpdateActiveUnit({
+          id: u.id,
+          driverId: u.driverId,
+          vehicleType: u.vehicleType,
+          triage: u.triage,
+          hospital: u.hospital,
+          speedKmh: u.speedKmh,
+          status: u.arrived ? 'DOCKED AT BAY' : (u.cleared ? 'CLEARED' : 'EN ROUTE')
+        });
+      });
+    }
+  }
+
+  // Arrival Confirmation
+  if (msg.type === 'SIM_ARRIVED') {
+    handleMissionArrival(msg.hospital);
+  }
+    }
+  }
+}
+
+function updateJunctionStep(idx, jData) {
+  if (!jData) return;
+  const item = document.getElementById(`jStep${idx}`);
+  const sub = document.getElementById(`jSub${idx}`);
+  const badge = document.getElementById(`jSigBadge${idx}`);
+
+  if (jData.dist !== undefined && sub) {
+    const distText = (jData.dist <= 0) ? 'CLEARED' : `${Math.round(jData.dist)}m away`;
+    sub.textContent = `${jData.name || ''} • ${distText}`;
+  }
+
+  if (item && badge) {
+    if (jData.passed) {
+      item.className = 'junction-row cleared';
+      badge.className = 'signal-pill sig-green';
+      badge.textContent = 'CLEARED';
+    } else if (jData.isPreemptGreen) {
+      item.className = 'junction-row green-wave';
+      badge.className = 'signal-pill sig-green';
+      badge.textContent = '🟢 GREEN WAVE';
+    } else if (jData.isPreemptClearance) {
+      item.className = 'junction-row green-wave';
+      badge.className = 'signal-pill sig-amber';
+      badge.textContent = '🟡 CLEARANCE';
+    } else {
+      item.className = 'junction-row';
+      badge.className = 'signal-pill sig-red';
+      badge.textContent = (jData.signalColor || 'RED') + ' (CYCLE)';
+    }
+  }
+}
+
+function resetJunctionSteps() {
+  for (let i = 1; i <= 3; i++) {
+    const item = document.getElementById(`jStep${i}`);
+    if (item) item.className = 'junction-row';
+    const badge = document.getElementById(`jSigBadge${i}`);
+    if (badge) {
+      badge.className = 'signal-pill sig-red';
+      badge.textContent = 'RED (CYCLE)';
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// 6. Siren & Voice Synthesizer
+// ---------------------------------------------------------------------------
+let audioCtx = null;
+let sirenOsc = null;
+let sirenInterval = null;
+
+function initAudio() {
+  if (!audioCtx) {
+    const AudioCtor = window.AudioContext || window.webkitAudioContext;
+    if (AudioCtor) audioCtx = new AudioCtor();
+  }
+  if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+}
+
+function toggleSirenAudio() {
+  initAudio();
+  sirenAudioOn = !sirenAudioOn;
+  const btn = document.getElementById('btnSirenAudio');
+  if (btn) {
+    if (sirenAudioOn) {
+      btn.classList.add('siren-on');
+      btn.textContent = '🔊 SIREN: ON';
+      startSirenTone();
+    } else {
+      btn.classList.remove('siren-on');
+      btn.textContent = '🔊 SIREN: OFF';
+      stopSirenTone();
+    }
+  }
+}
+
+function startSirenTone() {
+  if (!audioCtx || sirenOsc) return;
+  try {
+    sirenOsc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    sirenOsc.type = (currentVehicleType === 'FIRE_BRIGADE') ? 'square' : 'sawtooth';
+    const baseFreq = (currentVehicleType === 'FIRE_BRIGADE') ? 480 : (currentVehicleType === 'POLICE' ? 880 : 770);
+    sirenOsc.frequency.setValueAtTime(baseFreq, audioCtx.currentTime);
+    gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+    sirenOsc.connect(gain);
+    gain.connect(audioCtx.destination);
+    sirenOsc.start();
+
+    let toggle = false;
+    sirenInterval = setInterval(() => {
+      if (!sirenOsc) return;
+      const target = toggle ? baseFreq : baseFreq * 1.28;
+      sirenOsc.frequency.exponentialRampToValueAtTime(target, audioCtx.currentTime + 0.3);
+      toggle = !toggle;
+    }, 450);
+  } catch (e) {}
+}
+
+function stopSirenTone() {
+  if (sirenInterval) { clearInterval(sirenInterval); sirenInterval = null; }
+  if (sirenOsc) {
+    try { sirenOsc.stop(); sirenOsc.disconnect(); } catch (e) {}
+    sirenOsc = null;
+  }
+}
+
+let isVoiceEnabled = true;
+let lastSpokenText = '';
+let lastSpokenTime = 0;
+let voiceMilestones = {};
+
+function speakGuidance(text, force = false) {
+  if (!isVoiceEnabled || !('speechSynthesis' in window)) return;
+  const now = Date.now();
+  if (!force && text === lastSpokenText && (now - lastSpokenTime) < 7000) return;
+  lastSpokenText = text;
+  lastSpokenTime = now;
+
+  try {
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.rate = 1.15;
+    utter.pitch = 1.0;
+    utter.volume = 0.95;
+    window.speechSynthesis.speak(utter);
+  } catch (e) {}
+}
+
+function toggleVoiceAudio() {
+  isVoiceEnabled = !isVoiceEnabled;
+  const btn = document.getElementById('btnVoiceAudio');
+  if (btn) {
+    btn.innerHTML = isVoiceEnabled ? '🎙️ VOICE: ON' : '🔇 VOICE: OFF';
+    btn.classList.toggle('voice-on', isVoiceEnabled);
+  }
+  const settingsStatus = document.getElementById('settingsVoiceStatus');
+  if (settingsStatus) {
+    settingsStatus.textContent = isVoiceEnabled ? 'ACTIVE (ON)' : 'MUTED (OFF)';
+    settingsStatus.style.color = isVoiceEnabled ? 'var(--glosa-green)' : 'var(--text-muted)';
+  }
+  if (isVoiceEnabled) {
+    speakGuidance("Voice guidance enabled.", true);
+  } else {
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+  }
+}
+
+function updateVoiceGuidance(myUnit, msg) {
+  if (!myUnit || myUnit.arrived || myUnit.cleared) return;
+  const runId = myUnit.id || 'EV';
+  if (!myVoiceMilestones[runId]) {
+    myVoiceMilestones[runId] = {
+      started: false,
+      j1Appr: false,
+      j1Clear: false,
+      j2Appr: false,
+      j2Clear: false,
+      j3Appr: false,
+      j3Clear: false,
+      hospEntry: false
+    };
+  }
+  const m = myVoiceMilestones[runId];
+
+  if (!m.started) {
+    m.started = true;
+    const vName = (currentVehicleType === 'FIRE_BRIGADE') ? 'Fire Tender' : (currentVehicleType === 'POLICE' ? 'Police Unit' : '108 Ambulance');
+    speakGuidance(`Emergency green wave engaged for ${vName}. Clear corridor towards ${selectedHospitalName}. Accelerate to 65.`);
+    return;
+  }
+
+  if (myUnit.j1Dist < 200 && myUnit.j1Dist > 80 && !m.j1Appr) {
+    m.j1Appr = true;
+    speakGuidance("Approaching Ayurvedic Circle. Signal locked green, glide at 55.");
+  }
+  if (myUnit.j1Dist <= -15 && !m.j1Clear) {
+    m.j1Clear = true;
+    speakGuidance("Ayurvedic Circle cleared. Advance towards Irwin Crossing.");
+  }
+  if (myUnit.j2Dist < 220 && myUnit.j2Dist > 80 && !m.j2Appr) {
+    m.j2Appr = true;
+    speakGuidance("Irwin Road Crossing green wave active. Queue cleared.");
+  }
+  if (myUnit.j2Dist <= -15 && !m.j2Clear) {
+    m.j2Clear = true;
+    speakGuidance("Junction 2 cleared. Final stretch to hospital gate.");
+  }
+  if (myUnit.j3Dist < 180 && myUnit.j3Dist > 60 && !m.j3Appr) {
+    m.j3Appr = true;
+    speakGuidance("Approaching KR Hospital Gate. Preemption green confirmed.");
+  }
+  if (myUnit.j3Dist <= 50 && !m.hospEntry) {
+    m.hospEntry = true;
+    speakGuidance("Entering casualty apron. Decelerate to 25 for handover.");
+  }
+}
+
+// ---------------------------------------------------------------------------
+// 6C. GLOSA Wave Calculation Engine
+// ---------------------------------------------------------------------------
+function updateGlosaDeck(myUnit, msg) {
+  const speedEl = document.getElementById('glosaTargetSpeed');
+  const juncEl = document.getElementById('glosaTargetJunc');
+  const distEl = document.getElementById('glosaDistToJunc');
+  const barEl = document.getElementById('glosaSpeedBar');
+  const statusEl = document.getElementById('glosaWaveStatus');
+
+  if (!myUnit || myUnit.arrived || myUnit.cleared) {
+    if (speedEl) speedEl.textContent = '0';
+    if (juncEl) juncEl.textContent = 'STANDBY';
+    if (distEl) distEl.textContent = '-- m';
+    if (statusEl) {
+      statusEl.textContent = 'STANDBY';
+      statusEl.className = 'glosa-badge standby';
+    }
+    return;
+  }
+
+  let targetJuncName = 'J1 • Ayurvedic Circle';
+  let targetDist = myUnit.j1Dist;
+
+  if (myUnit.j1Dist <= -15) {
+    if (myUnit.j2Dist > -15) {
+      targetJuncName = 'J2 • Irwin Rd Cross';
+      targetDist = myUnit.j2Dist;
+    } else {
+      targetJuncName = 'J3 • KR Gate';
+      targetDist = myUnit.j3Dist;
+    }
+  }
+
+  // Dynamic GLOSA speed calculation
+  let optimalSpeed = 65;
+  let waveBadgeText = '⚡ ZERO-STOP WAVE';
+
+  if (targetDist > 300) {
+    optimalSpeed = 70;
+    waveBadgeText = '⚡ CORRIDOR ACCELERATE';
+  } else if (targetDist > 140) {
+    optimalSpeed = 62;
+    waveBadgeText = '🟢 GREEN WAVE CRUISE';
+  } else if (targetDist > 40) {
+    optimalSpeed = 52;
+    waveBadgeText = '⚡ QUEUE FLUSH GLIDE';
+  } else if (targetDist > -15) {
+    optimalSpeed = 45;
+    waveBadgeText = '🟡 CROSSING STOP-BAR';
+  } else {
+    optimalSpeed = 65;
+    waveBadgeText = '🟢 ADVANCING TO NEXT';
+  }
+
+  if (myUnit.j3Dist !== undefined && myUnit.j3Dist <= 60 && myUnit.j3Dist > -10) {
+    optimalSpeed = 25;
+    waveBadgeText = '🏥 HOSPITAL SLOW-DOWN';
+  }
+
+  if (speedEl) speedEl.textContent = Math.round(optimalSpeed);
+  if (juncEl) juncEl.textContent = targetJuncName + ' • GREEN LOCK';
+  if (distEl) distEl.textContent = (targetDist > -15) ? `${Math.max(0, Math.round(targetDist))} m` : 'CLEARED';
+  if (barEl) {
+    const barPct = Math.min(100, Math.max(10, ((optimalSpeed - 20) / (80 - 20)) * 100));
+    barEl.style.width = `${barPct}%`;
+  }
+  if (statusEl) {
+    statusEl.textContent = waveBadgeText;
+    statusEl.className = 'glosa-badge';
+  }
+}
+
+// ---------------------------------------------------------------------------
+// 7. Driver Authentication Management (Duty ID & PIN)
+// ---------------------------------------------------------------------------
+function hashPasscode(s) {
+  if (!s) return '';
+  let h = 0x811c9dc5;
+  for (let i = 0; i < s.length; i++) {
+    h = Math.imul(h ^ s.charCodeAt(i), 0x01000193) >>> 0;
+  }
+  return (h >>> 0).toString(16);
+}
+
+const AUTHORIZED_DRIVER_ACCOUNTS = [
+  { id: '045', name: 'dhyan', pin: '2007', passHash: '2007', label: 'Dhyan (EMT #045)', role: 'AMBULANCE_DRIVER', vehicle: '108 Cardiac ICU', hosp: 'Manipal Hospital' },
+  { id: '071', name: 'kishan', pin: '2006', passHash: '2006', label: 'Kishan (Driver #071)', role: 'AMBULANCE_DRIVER', vehicle: 'Stroke Unit 02', hosp: 'Apollo BGS Hospital' },
+  { id: '099', name: 'mohan', pin: '2006', passHash: '2006', label: 'Mohan (Officer #099)', role: 'TRAFFIC_OFFICER', vehicle: 'Trauma Unit 03', hosp: 'KR Hospital' },
+  { id: '109', name: 'nithin', pin: '2006', passHash: '2006', label: 'Nithin (Driver #109)', role: 'AMBULANCE_DRIVER', vehicle: 'Trauma Unit 03', hosp: 'KR Hospital' }
+];
+
+function verifyDriverCredentials(idStr, passStr) {
+  if (!idStr || !passStr) return null;
+  const input = idStr.trim().toLowerCase();
+  const rawPin = passStr.trim();
+  if (!input || !rawPin) return null;
+
+  // Match by Badge ID (e.g. '045', '45') OR Driver Name (e.g. 'dhyan', 'kishan')
+  const matched = AUTHORIZED_DRIVER_ACCOUNTS.find(a => 
+    a.id.toLowerCase() === input ||
+    a.id.replace(/^0+/, '') === input.replace(/^0+/, '') ||
+    (a.name && a.name.toLowerCase() === input)
+  );
+
+  if (!matched) return { error: 'UNAUTHORIZED_ID' };
+
+  const validPins = ['2006', '2007', matched.pin];
+  const inputHash = hashPasscode(rawPin);
+  const isPinValid = validPins.includes(rawPin) || matched.passHash === inputHash;
+
+  if (!isPinValid) return { error: 'INVALID_PIN' };
+
+  const normId = matched.id;
+  return {
+    id: normId,
+    name: matched.name,
+    passHash: matched.passHash,
+    label: matched.label || `Driver #${normId}`,
+    role: matched.role || 'DRIVER'
+  };
+}
+
+function showDriverLoginModal() {
+  const modal = document.getElementById('driverAuthModal');
+  if (modal) modal.style.setProperty('display', 'flex', 'important');
+}
+
+function dismissDriverAuthModal() {
+  const modal = document.getElementById('driverAuthModal');
+  if (modal) modal.style.setProperty('display', 'none', 'important');
+}
+
+
+function reportPresence(isOnline) {
+  const dId = getLoggedInDriverId() || (inMemoryDriverUser ? inMemoryDriverUser.id : null);
+  const dName = inMemoryDriverUser ? (inMemoryDriverUser.name || inMemoryDriverUser.label) : null;
+  if (!dId) return;
+
+  const payload = {
+    badge_id: dId,
+    driver_name: dName,
+    is_online: isOnline
+  };
+
+  const url = (location.protocol === 'file:') ? 'http://localhost:8000/api/driver/presence' : '/api/driver/presence';
+  try {
+    fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      keepalive: true
+    }).catch(() => {});
+  } catch(e) {}
+}
+
+window.addEventListener('beforeunload', () => {
+  reportPresence(false);
+});
+
+function loginSuccess(authRecord) {
+  inMemoryDriverUser = authRecord;
+  try {
+    const serialized = JSON.stringify(authRecord);
+    safeSession.setItem('GREEN_CORRIDOR_DRIVER_USER', serialized);
+    safeLocal.setItem('GREEN_CORRIDOR_DRIVER_USER', serialized);
+  } catch(e) {}
+
+  dismissDriverAuthModal();
+
+  const sub = document.getElementById('appHeaderSub');
+  if (sub) sub.textContent = `DUTY #${authRecord.id} • 108 AROGYA KAVACHA`;
+
+  reportPresence(true);
+  showToast(`✅ Access Granted: ${authRecord.label || ('Driver #' + authRecord.id)}`);
+}
+
+function checkDriverAuth() {
+  let user = null;
+  try {
+    user = safeSession.getItem('GREEN_CORRIDOR_DRIVER_USER') || safeLocal.getItem('GREEN_CORRIDOR_DRIVER_USER') || inMemoryDriverUser;
+  } catch(e) {}
+
+  if (user) {
+    try {
+      const uData = (typeof user === 'string') ? JSON.parse(user) : user;
+      if (uData && uData.id && AUTHORIZED_DRIVER_ACCOUNTS.some(a => isSameDriverId(a.id, uData.id) || (a.name && a.name.toLowerCase() === String(uData.name || uData.id).toLowerCase()))) {
+        inMemoryDriverUser = uData;
+        dismissDriverAuthModal();
+        const sub = document.getElementById('appHeaderSub');
+        if (sub) sub.textContent = `DUTY #${uData.id} • 108 AROGYA KAVACHA`;
+        reportPresence(true);
+        return;
+      }
+    } catch(e) {}
+  }
+
+  inMemoryDriverUser = null;
+  showDriverLoginModal();
+}
+
+
+function handleMissionArrival(hospName) {
+  isPreemptionActive = false;
+  myActiveVehicleId = null;
+  stopSirenTone();
+
+  const overallEl = document.getElementById('lblCorridorOverall');
+  if (overallEl) {
+    overallEl.textContent = 'SAFELY DOCKED';
+    overallEl.style.color = 'var(--emerald)';
+  }
+
+  const teleEtaEl = document.getElementById('teleEta');
+  if (teleEtaEl) teleEtaEl.textContent = 'ETA 00:00';
+
+  const teleSpeedEl = document.getElementById('teleSpeed');
+  if (teleSpeedEl) teleSpeedEl.textContent = '0 km/h (Docked)';
+
+  const glosaSpeedEl = document.getElementById('glosaTargetSpeed');
+  if (glosaSpeedEl) glosaSpeedEl.textContent = '0';
+
+  const glosaStatus = document.getElementById('glosaWaveStatus');
+  if (glosaStatus) {
+    glosaStatus.textContent = 'MISSION COMPLETED';
+    glosaStatus.className = 'glosa-badge standby';
+  }
+
+  // Turn Trigger Button back to Green Ready State
+  const btn = document.getElementById('btnEmergencyTrigger');
+  if (btn) {
+    btn.classList.remove('active-run');
+    btn.style.background = 'var(--emerald)';
+  }
+  const btnIco = document.getElementById('triggerBtnIcon');
+  if (btnIco) btnIco.textContent = '⚡';
+  const btnTxt = document.getElementById('triggerBtnText');
+  if (btnTxt) btnTxt.textContent = 'TRIGGER GREEN WAVE CORRIDOR';
+  const btnSub = document.getElementById('triggerBtnSub');
+  if (btnSub) btnSub.textContent = 'READY FOR NEXT EMERGENCY DISPATCH';
+
+  // Mark all 3 cascading junction steps as CLEARED
+  for (let i = 1; i <= 3; i++) {
+    const item = document.getElementById(`jStep${i}`);
+    if (item) item.className = 'junction-row cleared';
+    const badge = document.getElementById(`jSigBadge${i}`);
+    if (badge) {
+      badge.className = 'signal-pill sig-green';
+      badge.textContent = 'CLEARED';
+    }
+    const sub = document.getElementById(`jSub${i}`);
+    if (sub) {
+      const jNames = ['Ayurvedic Circle', 'Irwin Road Cross', 'KR Hospital Gate'];
+      sub.textContent = `${jNames[i-1]} • CLEARED`;
+    }
+  }
+
+  // Clear active emergency run from activeFleet
+  activeFleet = [];
+  renderFleetDeck();
+  const fleetSec = document.getElementById('fleetSection');
+  if (fleetSec) fleetSec.style.display = 'none';
+
+  const hText = hospName || selectedHospitalName || 'Hospital Trauma Center';
+  speakGuidance(`Mission accomplished. Safely arrived at ${hText}. Patient handover initiated.`, true);
+  showToast(`🎉 Destination Reached! Patient handover at ${hText}.`);
+}
+
+function handleDriverAuthSubmit(e) {
+  if (e) e.preventDefault();
+  const idInput = document.getElementById('txtDriverId');
+  const pinInput = document.getElementById('txtDriverPin');
+  const err = document.getElementById('driverAuthErr');
+  const id = idInput ? idInput.value.trim() : '';
+  const pin = pinInput ? pinInput.value.trim() : '';
+
+  if (!id || !pin) {
+    if (err) {
+      err.innerHTML = '⚠️ Please enter both your assigned Duty ID and Security PIN.';
+      err.style.display = 'block';
+    }
+    return;
+  }
+
+  const res = verifyDriverCredentials(id, pin);
+  if (!res || res.error) {
+    if (err) {
+      if (res && res.error === 'UNAUTHORIZED_ID') {
+        err.innerHTML = `❌ <b>ACCESS DENIED</b>: Duty ID <b>#${id}</b> is not permitted.`;
+      } else {
+        err.innerHTML = `❌ <b>ACCESS DENIED</b>: Invalid PIN for Duty ID #${id}.`;
+      }
+      err.style.display = 'block';
+    }
+    return;
+  }
+
+  if (err) err.style.display = 'none';
+  loginSuccess({
+    id: res.id,
+    passHash: res.passHash,
+    label: res.label,
+    role: res.role,
+    loginTime: new Date().toISOString()
+  });
+}
+
+function logoutDriver() {
+  reportPresence(false);
+  myActiveVehicleId = null;
+  activeFleet = [];
+  try {
+    safeSession.removeItem('GREEN_CORRIDOR_DRIVER_USER');
+    safeLocal.removeItem('GREEN_CORRIDOR_DRIVER_USER');
+  } catch(e) {}
+  inMemoryDriverUser = null;
+  showToast('🔒 Terminal locked. Driver logged out.');
+  showDriverLoginModal();
+}
+
+window.addEventListener('load', () => {
+  checkDriverAuth();
+});
+</script>
+</body>
+</html>

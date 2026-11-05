@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+anyio
+pydantic
+opentelemetry-api
+supabase
